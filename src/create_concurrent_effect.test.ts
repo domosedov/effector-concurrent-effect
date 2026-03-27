@@ -1,27 +1,20 @@
-import {
-  allSettled,
-  createEffect,
-  createEvent,
-  createWatch,
-  fork,
-  scopeBind,
-} from 'effector';
-import { describe, test, expect, vi } from 'vitest';
-import { setTimeout as delay } from 'timers/promises';
+import { allSettled, createEffect, createEvent, createWatch, fork, scopeBind } from "effector";
+import { describe, expect, test, vi } from "vite-plus/test";
+import { setTimeout as delay } from "timers/promises";
 
-import { createConcurrentEffect } from './create_concurrent_effect';
-import { createDefer } from './defer';
-import { applyEffectConcurrency } from './apply_concurrency';
-import { onAbort } from './on_abort';
-import { ABORT } from './errors';
-import { getCallObjectEvent } from './with_call_object';
+import { applyEffectConcurrency } from "./apply_concurrency";
+import { createConcurrentEffect } from "./create_concurrent_effect";
+import { createDefer } from "./defer";
+import { ABORT } from "./errors";
+import { onAbort } from "./on_abort";
+import { getCallObjectEvent } from "./with_call_object";
 
-describe('createConcurrentEffect', () => {
-  test('abortAll aborts all pending calls', async () => {
+describe("createConcurrentEffect", () => {
+  test("abortAll aborts all pending calls", async () => {
     const abortAll = createEvent();
 
     const fx = createConcurrentEffect({
-      name: 'hang',
+      name: "hang",
       abortAll,
       handler: async () => {
         const defer = createDefer<string>();
@@ -42,10 +35,10 @@ describe('createConcurrentEffect', () => {
     expect(failures).toHaveBeenCalledTimes(2);
   });
 
-  test('TAKE_LATEST aborts previous pending call', async () => {
+  test("TAKE_LATEST aborts previous pending call", async () => {
     const fx = createConcurrentEffect({
-      name: 'latest',
-      concurrency: 'TAKE_LATEST',
+      name: "latest",
+      concurrency: "TAKE_LATEST",
       handler: async (id: string) => {
         const defer = createDefer<string>();
         onAbort(() => defer.reject());
@@ -61,18 +54,18 @@ describe('createConcurrentEffect', () => {
     createWatch({ unit: fx.failData, fn: failures, scope });
 
     await Promise.all([
-      allSettled(fx, { scope, params: '1' }),
-      allSettled(fx, { scope, params: '2' }),
+      allSettled(fx, { scope, params: "1" }),
+      allSettled(fx, { scope, params: "2" }),
     ]);
 
     expect(failures).toHaveBeenCalledTimes(1);
     expect(failures.mock.calls[0]?.[0]?.errorType).toBe(ABORT);
   });
 
-  test('strategy alias works the same as concurrency', async () => {
+  test("strategy alias works the same as concurrency", async () => {
     const fx = createConcurrentEffect({
-      name: 'latest-by-strategy',
-      strategy: 'TAKE_LATEST',
+      name: "latest-by-strategy",
+      strategy: "TAKE_LATEST",
       handler: async (id: string) => {
         const defer = createDefer<string>();
         onAbort(() => defer.reject());
@@ -88,18 +81,18 @@ describe('createConcurrentEffect', () => {
     createWatch({ unit: fx.failData, fn: failures, scope });
 
     await Promise.all([
-      allSettled(fx, { scope, params: '1' }),
-      allSettled(fx, { scope, params: '2' }),
+      allSettled(fx, { scope, params: "1" }),
+      allSettled(fx, { scope, params: "2" }),
     ]);
 
     expect(failures).toHaveBeenCalledTimes(1);
     expect(failures.mock.calls[0]?.[0]?.errorType).toBe(ABORT);
   });
 
-  test('TAKE_FIRST rejects second start while first is in flight', async () => {
+  test("TAKE_FIRST rejects second start while first is in flight", async () => {
     const fx = createConcurrentEffect({
-      name: 'first',
-      concurrency: 'TAKE_FIRST',
+      name: "first",
+      concurrency: "TAKE_FIRST",
       handler: async (id: string) => {
         await delay(5);
         return id;
@@ -111,8 +104,8 @@ describe('createConcurrentEffect', () => {
 
     createWatch({ unit: fx.failData, fn: failures, scope });
 
-    const a = allSettled(fx, { scope, params: '1' });
-    await allSettled(fx, { scope, params: '2' });
+    const a = allSettled(fx, { scope, params: "1" });
+    await allSettled(fx, { scope, params: "2" });
 
     expect(failures).toHaveBeenCalledTimes(1);
     expect(failures.mock.calls[0]?.[0]?.errorType).toBe(ABORT);
@@ -120,11 +113,11 @@ describe('createConcurrentEffect', () => {
     await a;
   });
 
-  test('TAKE_FIRST lock is isolated per scope', async () => {
+  test("TAKE_FIRST lock is isolated per scope", async () => {
     const defers: Array<{ resolve: (value: string) => void }> = [];
     const fx = createConcurrentEffect({
-      name: 'first-per-scope',
-      strategy: 'TAKE_FIRST',
+      name: "first-per-scope",
+      strategy: "TAKE_FIRST",
       handler: async (id: string) => {
         const defer = createDefer<string>();
         defers.push(defer);
@@ -140,8 +133,8 @@ describe('createConcurrentEffect', () => {
     createWatch({ unit: fx.failData, fn: failuresA, scope: scopeA });
     createWatch({ unit: fx.failData, fn: failuresB, scope: scopeB });
 
-    const callA = scopeBind(fx, { scope: scopeA })('A');
-    const callB = scopeBind(fx, { scope: scopeB })('B');
+    const callA = scopeBind(fx, { scope: scopeA })("A");
+    const callB = scopeBind(fx, { scope: scopeB })("B");
 
     await Promise.resolve();
 
@@ -149,27 +142,27 @@ describe('createConcurrentEffect', () => {
     expect(failuresA).not.toHaveBeenCalled();
     expect(failuresB).not.toHaveBeenCalled();
 
-    defers[0]!.resolve('done');
-    defers[1]!.resolve('done');
+    defers[0]!.resolve("done");
+    defers[1]!.resolve("done");
 
-    await expect(callA).resolves.toBe('A');
-    await expect(callB).resolves.toBe('B');
+    await expect(callA).resolves.toBe("A");
+    await expect(callB).resolves.toBe("B");
   });
 
-  test('TAKE_FIRST preserves params for fx.use', async () => {
+  test("TAKE_FIRST preserves params for fx.use", async () => {
     const fx = createConcurrentEffect({
-      strategy: 'TAKE_FIRST',
+      strategy: "TAKE_FIRST",
       handler: async (value: string) => value,
     });
 
     fx.use(async (value) => value);
 
-    await expect(fx('payload')).resolves.toBe('payload');
+    await expect(fx("payload")).resolves.toBe("payload");
   });
 
-  test('TAKE_FIRST preserves params for fork handlers', async () => {
+  test("TAKE_FIRST preserves params for fork handlers", async () => {
     const fx = createConcurrentEffect({
-      strategy: 'TAKE_FIRST',
+      strategy: "TAKE_FIRST",
       handler: async (value: string) => value,
     });
 
@@ -177,19 +170,17 @@ describe('createConcurrentEffect', () => {
       handlers: [[fx, async (value: string) => value]],
     });
 
-    await expect(
-      allSettled(fx, { scope, params: 'payload' })
-    ).resolves.toEqual({
-      status: 'done',
-      value: 'payload',
+    await expect(allSettled(fx, { scope, params: "payload" })).resolves.toEqual({
+      status: "done",
+      value: "payload",
     });
   });
 
-  test('onAbort runs when callObject.abort()', async () => {
+  test("onAbort runs when callObject.abort()", async () => {
     const onAbortFn = vi.fn();
 
     const fx = createConcurrentEffect({
-      name: 'co',
+      name: "co",
       handler: async () => {
         const defer = createDefer();
         onAbort(() => {
@@ -206,7 +197,7 @@ describe('createConcurrentEffect', () => {
     createWatch({
       unit: fx.callObjectCreated,
       fn: (co) => {
-        if (co.status === 'pending') calls.push(co);
+        if (co.status === "pending") calls.push(co);
       },
       scope,
     });
@@ -220,11 +211,11 @@ describe('createConcurrentEffect', () => {
     expect(onAbortFn).toHaveBeenCalledTimes(1);
   });
 
-  test('nested concurrent effect does not steal outer onAbort callback', async () => {
+  test("nested concurrent effect does not steal outer onAbort callback", async () => {
     const outerAbort = vi.fn();
 
     const innerFx = createConcurrentEffect({
-      handler: async () => 'inner',
+      handler: async () => "inner",
     });
 
     const outerFx = createConcurrentEffect({
@@ -243,7 +234,7 @@ describe('createConcurrentEffect', () => {
 
     const calls: Array<{ abort: () => void }> = [];
     outerFx.callObjectCreated.watch((call) => {
-      if (call.status === 'pending') {
+      if (call.status === "pending") {
         calls.push(call);
       }
     });
@@ -256,33 +247,33 @@ describe('createConcurrentEffect', () => {
     expect(outerAbort).toHaveBeenCalledTimes(1);
   });
 
-  test('sync throw does not leak onAbort state', async () => {
+  test("sync throw does not leak onAbort state", async () => {
     const syncThrowFx = createConcurrentEffect({
       handler: () => {
         onAbort(() => undefined);
-        throw new Error('boom');
+        throw new Error("boom");
       },
     });
 
-    await expect(syncThrowFx()).rejects.toThrow('boom');
+    await expect(syncThrowFx()).rejects.toThrow("boom");
     expect(() => onAbort(() => undefined)).toThrow();
   });
 
-  test('applyEffectConcurrency supports TAKE_FIRST for plain effects', async () => {
+  test("applyEffectConcurrency supports TAKE_FIRST for plain effects", async () => {
     const fx = createEffect(async (value: string) => {
-        await delay(5);
-        return value;
+      await delay(5);
+      return value;
     });
 
     applyEffectConcurrency(fx, getCallObjectEvent(fx), {
-      strategy: 'TAKE_FIRST',
+      strategy: "TAKE_FIRST",
     });
 
     const failures = vi.fn();
     fx.failData.watch(failures);
 
-    const first = fx('1');
-    await fx('2').catch(() => undefined);
+    const first = fx("1");
+    await fx("2").catch(() => undefined);
 
     expect(failures).toHaveBeenCalledTimes(1);
     expect(failures.mock.calls[0]?.[0]?.errorType).toBe(ABORT);

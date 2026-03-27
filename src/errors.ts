@@ -1,11 +1,11 @@
-export const ABORT = 'ABORT' as const;
+export const ABORT = "ABORT" as const;
 
 export type ConcurrentAbortError = {
   errorType: typeof ABORT;
   explanation: string;
 };
 
-export const CONFIGURATION = 'CONFIGURATION' as const;
+export const CONFIGURATION = "CONFIGURATION" as const;
 
 export type ConcurrentConfigurationError = {
   errorType: typeof CONFIGURATION;
@@ -17,7 +17,7 @@ export type ConcurrentConfigurationError = {
 export function abortError(): ConcurrentAbortError {
   return {
     errorType: ABORT,
-    explanation: 'Request was cancelled due to concurrency policy',
+    explanation: "Request was cancelled due to concurrency policy",
   };
 }
 
@@ -28,6 +28,6 @@ export function configurationError(config: {
   return {
     ...config,
     errorType: CONFIGURATION,
-    explanation: 'Operation is misconfigured',
+    explanation: "Operation is misconfigured",
   };
 }

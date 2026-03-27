@@ -1,7 +1,7 @@
-import { createEffect, type Effect, type Event } from 'effector';
+import { createEffect, type Effect, type Event } from "effector";
 
-import { applyEffectConcurrency, type ConcurrencyStrategy } from './apply_concurrency';
-import { getCallObjectEvent, type CallObject } from './with_call_object';
+import { applyEffectConcurrency, type ConcurrencyStrategy } from "./apply_concurrency";
+import { getCallObjectEvent, type CallObject } from "./with_call_object";
 
 type EffectHandler<Params, Done> = [Params] extends [void]
   ? () => Done | Promise<Done>
@@ -38,15 +38,15 @@ export type ConcurrentEffect<FX extends Effect<any, any, any>> = FX & {
  * ```
  */
 export function createConcurrentEffect<Done>(
-  config: CreateConcurrentEffectConfig<void, Done>
+  config: CreateConcurrentEffectConfig<void, Done>,
 ): ConcurrentEffect<Effect<void, Done, Error>>;
 export function createConcurrentEffect<Params, Done>(
-  config: CreateConcurrentEffectConfig<Params, Done>
+  config: CreateConcurrentEffectConfig<Params, Done>,
 ): ConcurrentEffect<Effect<Params, Done, Error>>;
 export function createConcurrentEffect<Params, Done>(
-  config: CreateConcurrentEffectConfig<Params, Done>
+  config: CreateConcurrentEffectConfig<Params, Done>,
 ): ConcurrentEffect<Effect<Params, Done, Error>> {
-  const strategy = config.strategy ?? config.concurrency ?? 'TAKE_EVERY';
+  const strategy = config.strategy ?? config.concurrency ?? "TAKE_EVERY";
 
   const baseFx = createEffect<Params, Done>({
     name: config.name,

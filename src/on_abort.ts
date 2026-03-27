@@ -1,4 +1,4 @@
-import { configurationError } from './errors';
+import { configurationError } from "./errors";
 
 type AbortContext = {
   callback: (() => void) | null;
@@ -27,17 +27,17 @@ export function onAbort(callback: () => void) {
 
   if (!currentContext?.canSetCallback) {
     throw configurationError({
-      reason: 'onAbort call is not allowed',
+      reason: "onAbort call is not allowed",
       validationErrors: [
-        'onAbort can be called only in the context of a handler before any async operation is performed',
+        "onAbort can be called only in the context of a handler before any async operation is performed",
       ],
     });
   }
 
   if (currentContext.callback) {
     throw configurationError({
-      reason: 'onAbort call is not allowed',
-      validationErrors: ['onAbort can be called only once per operation'],
+      reason: "onAbort call is not allowed",
+      validationErrors: ["onAbort can be called only once per operation"],
     });
   }
   currentContext.callback = callback;

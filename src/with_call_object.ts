@@ -5,15 +5,11 @@ import {
   type Node,
   type Event,
   type EventCallable,
-} from 'effector';
+} from "effector";
 
-import { type Defer, createDefer } from './defer';
-import { abortError } from './errors';
-import {
-  occupyCurrentCancelCallback,
-  allowCancelSetting,
-  disallowCancelSetting,
-} from './on_abort';
+import { type Defer, createDefer } from "./defer";
+import { abortError } from "./errors";
+import { occupyCurrentCancelCallback, allowCancelSetting, disallowCancelSetting } from "./on_abort";
 
 export type CallObject = {
   id: string;
@@ -22,7 +18,7 @@ export type CallObject = {
    * @param customError — defaults to concurrency-style abort error
    */
   abort: (customError?: unknown) => void;
-  status: 'pending' | 'finished';
+  status: "pending" | "finished";
   promise?: Promise<unknown>;
 };
 
@@ -30,15 +26,13 @@ export type CallObject = {
  * Patches the effect runner so each async invocation emits a {@link CallObject} with `abort`.
  * Enables {@link onAbort} inside the handler during the synchronous prelude.
  */
-export function getCallObjectEvent<E extends Effect<any, any, any>>(
-  effect: E
-): Event<CallObject> {
+export function getCallObjectEvent<E extends Effect<any, any, any>>(effect: E): Event<CallObject> {
   const existing = patchedEffects.get(effect);
   if (existing) {
     return existing;
   }
 
-  const called = createEvent<CallObject>(effect.shortName + '.internalCall');
+  const called = createEvent<CallObject>(effect.shortName + ".internalCall");
 
   const callObjStep = step.compute({
     fn: (run) => {
@@ -63,7 +57,7 @@ export function getCallObjectEvent<E extends Effect<any, any, any>>(
 
 function createPatchedHandler(
   h: (...p: unknown[]) => unknown,
-  calledEvent: EventCallable<CallObject>
+  calledEvent: EventCallable<CallObject>,
 ) {
   return function patchedHandler(...p: unknown[]): unknown {
     const { result, abortCallback } = runWithExposedAbort(h, ...p);
@@ -72,7 +66,10 @@ function createPatchedHandler(
       const def = createDefer();
       const callObj = createCallObject(def, abortCallback);
       calledEvent(callObj);
-      result.then(def.resolve, def.reject);
+      result.then(
+        (value) => def.resolve(value),
+        (error) => def.reject(error),
+      );
 
       return def.promise;
     }
@@ -84,14 +81,11 @@ function createPatchedHandler(
   };
 }
 
-function createCallObject(
-  def?: Defer<unknown, unknown>,
-  onAbortCb?: (() => void) | null
-) {
-  let callStatus: CallObject['status'] = def ? 'pending' : 'finished';
+function createCallObject(def?: Defer<unknown, unknown>, onAbortCb?: (() => void) | null) {
+  let callStatus: CallObject["status"] = def ? "pending" : "finished";
 
   function finish() {
-    callStatus = 'finished';
+    callStatus = "finished";
     callObj.status = callStatus;
   }
 
@@ -104,7 +98,7 @@ function createCallObject(
     status: callStatus,
     abort: (error: unknown = abortError()) => {
       onAbortCb?.();
-      if (callStatus === 'finished') {
+      if (callStatus === "finished") {
         return;
       }
 
@@ -119,9 +113,8 @@ function createCallObject(
 }
 
 function getEffectRunnerNode(effect: Effect<any, any, any>): Node {
-  const runner = (
-    (effect as unknown as { graphite: Node }).graphite.scope as { runner: Node }
-  ).runner;
+  const runner = ((effect as unknown as { graphite: Node }).graphite.scope as { runner: Node })
+    .runner;
   return runner;
 }
 
@@ -155,7 +148,4 @@ function runWithExposedAbort(
 
 const flushQueue = createEvent();
 
-const patchedEffects = new WeakMap<
-  Effect<any, any, any>,
-  Event<CallObject>
->();
+const patchedEffects = new WeakMap<Effect<any, any, any>, Event<CallObject>>();

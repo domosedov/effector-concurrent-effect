@@ -6,10 +6,10 @@ import {
   sample,
   step,
   type Node,
-} from 'effector';
+} from "effector";
 
-import { abortError } from './errors';
-import type { CallObject } from './with_call_object';
+import { abortError } from "./errors";
+import type { CallObject } from "./with_call_object";
 
 const abortManyFx = createEffect((callObjects: CallObject[]) => {
   for (const callObject of callObjects) {
@@ -23,7 +23,7 @@ const effectCallObjects = new WeakMap<
 >();
 const takeFirstPatchedEffects = new WeakSet<Effect<any, any, any>>();
 
-export type ConcurrencyStrategy = 'TAKE_EVERY' | 'TAKE_LATEST' | 'TAKE_FIRST';
+export type ConcurrencyStrategy = "TAKE_EVERY" | "TAKE_LATEST" | "TAKE_FIRST";
 
 export function applyEffectConcurrency(
   effect: Effect<any, any, any>,
@@ -31,14 +31,13 @@ export function applyEffectConcurrency(
   options: {
     strategy: ConcurrencyStrategy;
     abortAll?: Event<unknown>;
-  }
+  },
 ) {
-  if (options.strategy === 'TAKE_FIRST') {
+  if (options.strategy === "TAKE_FIRST") {
     patchTakeFirst(effect);
   }
 
-  const needsStore =
-    options.strategy === 'TAKE_LATEST' || options.abortAll !== undefined;
+  const needsStore = options.strategy === "TAKE_LATEST" || options.abortAll !== undefined;
 
   if (!needsStore) {
     return;
@@ -46,7 +45,7 @@ export function applyEffectConcurrency(
 
   const $callObjects = getOrCreateCallObjectsStore(effect, callObjectCreated);
 
-  if (options.strategy === 'TAKE_LATEST') {
+  if (options.strategy === "TAKE_LATEST") {
     sample({
       clock: callObjectCreated,
       source: $callObjects,
@@ -67,22 +66,20 @@ export function applyEffectConcurrency(
 
 function getOrCreateCallObjectsStore(
   effect: Effect<any, any, any>,
-  callObjectCreated: Event<CallObject>
+  callObjectCreated: Event<CallObject>,
 ) {
   const existing = effectCallObjects.get(effect);
   if (existing) {
     return existing;
   }
 
-  const $callObjects = createStore<CallObject[]>([], { serialize: 'ignore' });
+  const $callObjects = createStore<CallObject[]>([], { serialize: "ignore" });
 
   sample({
     clock: callObjectCreated,
     source: $callObjects,
     fn: (callObjects, callObject) =>
-      callObjects
-        .filter((obj) => obj.status === 'pending')
-        .concat(callObject),
+      callObjects.filter((obj) => obj.status === "pending").concat(callObject),
     target: $callObjects,
   });
 
@@ -124,7 +121,9 @@ function patchTakeFirst(effect: Effect<any, any, any>) {
 }
 
 function getEffectRunnerNode(effect: Effect<any, any, any>): Node {
-  return ((effect as unknown as { graphite: Node }).graphite.scope as {
-    runner: Node;
-  }).runner;
+  return (
+    (effect as unknown as { graphite: Node }).graphite.scope as {
+      runner: Node;
+    }
+  ).runner;
 }
