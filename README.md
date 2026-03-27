@@ -1,4 +1,4 @@
-# `@domosedov/effector-concurrent`
+# `@domosedov/effector-concurrent-effect`
 
 Concurrency helpers for plain [`createEffect`](https://effector.dev/en/api/effector/createeffect/) with Farfetched-style cancellation semantics.
 
@@ -14,7 +14,7 @@ The package extracts the core mechanics behind `concurrency` and `onAbort` into 
 ## Install
 
 ```bash
-npm install @domosedov/effector-concurrent effector
+npm install @domosedov/effector-concurrent-effect effector
 ```
 
 `effector` is a peer dependency.
@@ -22,7 +22,7 @@ npm install @domosedov/effector-concurrent effector
 ## Basic usage
 
 ```ts
-import { createConcurrentEffect, onAbort } from "@domosedov/effector-concurrent";
+import { createConcurrentEffect, onAbort } from "@domosedov/effector-concurrent-effect";
 
 const requestFx = createConcurrentEffect({
   strategy: "TAKE_LATEST",
@@ -52,7 +52,7 @@ const requestFx = createConcurrentEffect({
 
 ```ts
 import { createEvent } from "effector";
-import { createConcurrentEffect } from "@domosedov/effector-concurrent";
+import { createConcurrentEffect } from "@domosedov/effector-concurrent-effect";
 
 const abortAll = createEvent();
 

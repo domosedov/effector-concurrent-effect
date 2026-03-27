@@ -1,5 +1,5 @@
 {
-  "name": "@domosedov/effector-concurrent",
+  "name": "@domosedov/effector-concurrent-effect",
   "version": "0.2.0",
   "description": "Concurrency helpers for Effector effects with Farfetched-style cancellation.",
   "keywords": [
