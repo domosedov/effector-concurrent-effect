@@ -38,33 +38,6 @@ describe("createConcurrentEffect", () => {
   test("TAKE_LATEST aborts previous pending call", async () => {
     const fx = createConcurrentEffect({
       name: "latest",
-      concurrency: "TAKE_LATEST",
-      handler: async (id: string) => {
-        const defer = createDefer<string>();
-        onAbort(() => defer.reject());
-        await delay(1);
-        defer.resolve(id);
-        return defer.promise;
-      },
-    });
-
-    const failures = vi.fn();
-    const scope = fork();
-
-    createWatch({ unit: fx.failData, fn: failures, scope });
-
-    await Promise.all([
-      allSettled(fx, { scope, params: "1" }),
-      allSettled(fx, { scope, params: "2" }),
-    ]);
-
-    expect(failures).toHaveBeenCalledTimes(1);
-    expect(failures.mock.calls[0]?.[0]?.errorType).toBe(ABORT);
-  });
-
-  test("strategy alias works the same as concurrency", async () => {
-    const fx = createConcurrentEffect({
-      name: "latest-by-strategy",
       strategy: "TAKE_LATEST",
       handler: async (id: string) => {
         const defer = createDefer<string>();
@@ -92,7 +65,7 @@ describe("createConcurrentEffect", () => {
   test("TAKE_FIRST rejects second start while first is in flight", async () => {
     const fx = createConcurrentEffect({
       name: "first",
-      concurrency: "TAKE_FIRST",
+      strategy: "TAKE_FIRST",
       handler: async (id: string) => {
         await delay(5);
         return id;

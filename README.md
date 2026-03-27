@@ -48,8 +48,6 @@ const requestFx = createConcurrentEffect({
 - `TAKE_LATEST`: abort all previous pending calls when a new one starts.
 - `TAKE_FIRST`: reject every next call while one is already in flight.
 
-`strategy` is the preferred option name. `concurrency` is still supported as a backward-compatible alias.
-
 ## `abortAll`
 
 ```ts

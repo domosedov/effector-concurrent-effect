@@ -12,7 +12,6 @@ export type CreateConcurrentEffectConfig<Params, Done> = {
   name?: string;
   sid?: string;
   strategy?: ConcurrencyStrategy;
-  concurrency?: ConcurrencyStrategy;
   abortAll?: Event<unknown>;
 };
 
@@ -22,7 +21,7 @@ export type ConcurrentEffect<FX extends Effect<any, any, any>> = FX & {
 
 /**
  * `createEffect` with Farfetched-style {@link onAbort}, {@link getCallObjectEvent},
- * and optional concurrency / `abortAll`.
+ * and optional strategy / `abortAll`.
  *
  * @example
  * ```ts
@@ -46,7 +45,7 @@ export function createConcurrentEffect<Params, Done>(
 export function createConcurrentEffect<Params, Done>(
   config: CreateConcurrentEffectConfig<Params, Done>,
 ): ConcurrentEffect<Effect<Params, Done, Error>> {
-  const strategy = config.strategy ?? config.concurrency ?? "TAKE_EVERY";
+  const strategy = config.strategy ?? "TAKE_EVERY";
 
   const baseFx = createEffect<Params, Done>({
     name: config.name,
