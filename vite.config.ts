@@ -21,4 +21,14 @@ export default defineConfig({
     exclude: ["dist/**", "examples/**", "node_modules/**"],
     pool: "threads",
   },
+  lint: {
+    ignorePatterns: ["dist/**", "examples/**", "node_modules/**"],
+    options: {
+      typeAware: true,
+      typeCheck: true,
+    },
+  },
+  fmt: {
+    ignorePatterns: ["dist/**", "examples/**", "node_modules/**"],
+  },
 });
