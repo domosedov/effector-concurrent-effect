@@ -38,16 +38,16 @@ export type ConcurrentEffect<FX extends Effect<any, any, any>> = FX & {
  */
 export function createConcurrentEffect<Done>(
   config: CreateConcurrentEffectConfig<void, Done>,
-): ConcurrentEffect<Effect<void, Done, Error>>;
+): ConcurrentEffect<Effect<void, Done, unknown>>;
 export function createConcurrentEffect<Params, Done>(
   config: CreateConcurrentEffectConfig<Params, Done>,
-): ConcurrentEffect<Effect<Params, Done, Error>>;
+): ConcurrentEffect<Effect<Params, Done, unknown>>;
 export function createConcurrentEffect<Params, Done>(
   config: CreateConcurrentEffectConfig<Params, Done>,
-): ConcurrentEffect<Effect<Params, Done, Error>> {
+): ConcurrentEffect<Effect<Params, Done, unknown>> {
   const strategy = config.strategy ?? "TAKE_EVERY";
 
-  const baseFx = createEffect<Params, Done>({
+  const baseFx = createEffect<Params, Done, unknown>({
     name: config.name,
     sid: config.sid,
     handler: config.handler as (params: Params) => Done | Promise<Done>,
@@ -62,5 +62,5 @@ export function createConcurrentEffect<Params, Done>(
 
   return Object.assign(baseFx, {
     callObjectCreated,
-  }) as ConcurrentEffect<Effect<Params, Done, Error>>;
+  }) as ConcurrentEffect<Effect<Params, Done, unknown>>;
 }

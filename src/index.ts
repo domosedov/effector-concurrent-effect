@@ -12,11 +12,14 @@ export { onAbort } from "./on_abort";
 
 export {
   abortError,
-  configurationError,
+  usageError,
   ABORT,
-  CONFIGURATION,
-  type ConcurrentAbortError,
-  type ConcurrentConfigurationError,
+  USAGE,
+  ON_ABORT_OUTSIDE_HANDLER,
+  ON_ABORT_ALREADY_REGISTERED,
+  ConcurrentAbortError,
+  ConcurrentUsageError,
+  type ConcurrentUsageErrorReason,
 } from "./errors";
 
 export { createDefer, type Defer } from "./defer";

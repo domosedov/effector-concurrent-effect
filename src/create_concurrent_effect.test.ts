@@ -5,7 +5,13 @@ import { setTimeout as delay } from "timers/promises";
 import { applyEffectConcurrency } from "./apply_concurrency";
 import { createConcurrentEffect } from "./create_concurrent_effect";
 import { createDefer } from "./defer";
-import { ABORT } from "./errors";
+import {
+  ABORT,
+  USAGE,
+  ConcurrentUsageError,
+  ON_ABORT_ALREADY_REGISTERED,
+  ON_ABORT_OUTSIDE_HANDLER,
+} from "./errors";
 import { onAbort } from "./on_abort";
 import { getCallObjectEvent } from "./with_call_object";
 
@@ -59,7 +65,7 @@ describe("createConcurrentEffect", () => {
     ]);
 
     expect(failures).toHaveBeenCalledTimes(1);
-    expect(failures.mock.calls[0]?.[0]?.errorType).toBe(ABORT);
+    expect(failures.mock.calls[0]?.[0]).toMatchObject({ code: ABORT });
   });
 
   test("TAKE_FIRST rejects second start while first is in flight", async () => {
@@ -81,7 +87,7 @@ describe("createConcurrentEffect", () => {
     await allSettled(fx, { scope, params: "2" });
 
     expect(failures).toHaveBeenCalledTimes(1);
-    expect(failures.mock.calls[0]?.[0]?.errorType).toBe(ABORT);
+    expect(failures.mock.calls[0]?.[0]).toMatchObject({ code: ABORT });
 
     await a;
   });
@@ -229,7 +235,40 @@ describe("createConcurrentEffect", () => {
     });
 
     await expect(syncThrowFx()).rejects.toThrow("boom");
-    expect(() => onAbort(() => undefined)).toThrow();
+    expect(() => onAbort(() => undefined)).toThrowError(
+      new ConcurrentUsageError(
+        ON_ABORT_OUTSIDE_HANDLER,
+        "onAbort can be called only inside a handler before the first async boundary",
+      ),
+    );
+  });
+
+  test("onAbort throws a usage error when called twice", async () => {
+    const fx = createConcurrentEffect({
+      handler: async () => {
+        onAbort(() => undefined);
+        onAbort(() => undefined);
+      },
+    });
+
+    await expect(fx()).rejects.toMatchObject({
+      code: USAGE,
+      reason: ON_ABORT_ALREADY_REGISTERED,
+    });
+  });
+
+  test("onAbort throws a usage error when called after an async boundary", async () => {
+    const fx = createConcurrentEffect({
+      handler: async () => {
+        await Promise.resolve();
+        onAbort(() => undefined);
+      },
+    });
+
+    await expect(fx()).rejects.toMatchObject({
+      code: USAGE,
+      reason: ON_ABORT_OUTSIDE_HANDLER,
+    });
   });
 
   test("applyEffectConcurrency supports TAKE_FIRST for plain effects", async () => {
@@ -249,7 +288,7 @@ describe("createConcurrentEffect", () => {
     await fx("2").catch(() => undefined);
 
     expect(failures).toHaveBeenCalledTimes(1);
-    expect(failures.mock.calls[0]?.[0]?.errorType).toBe(ABORT);
+    expect(failures.mock.calls[0]?.[0]).toMatchObject({ code: ABORT });
 
     await first;
   });

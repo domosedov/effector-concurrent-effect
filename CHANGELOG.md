@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.3.0
+
+### Minor Changes
+
+- Replace the old `configurationError` shape with `ConcurrentUsageError` and explicit usage reasons for invalid `onAbort` calls.
+- Represent concurrency aborts as `ConcurrentAbortError` instances instead of plain objects.
+- Make `createConcurrentEffect` fail typing honest by returning `Effect<Params, Done, unknown>`.
+
 ## 0.2.0
 
 ### Minor Changes

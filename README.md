@@ -9,7 +9,7 @@ The package extracts the core mechanics behind `concurrency` and `onAbort` into 
 - `getCallObjectEvent`
 - `onAbort`
 - `abortError`
-- `configurationError`
+- `usageError`
 
 ## Install
 
@@ -67,6 +67,8 @@ const requestFx = createConcurrentEffect({
 ## `onAbort`
 
 `onAbort` must be called synchronously inside the handler before the first `await`. The callback is invoked when the current call is aborted either manually through the call object or automatically by a concurrency strategy.
+
+If `onAbort` is used outside that synchronous part of the handler, or called more than once for the same operation, the library throws a `ConcurrentUsageError`.
 
 ## Development
 
