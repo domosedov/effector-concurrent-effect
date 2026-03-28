@@ -1,21 +1,21 @@
-import { ON_ABORT_ALREADY_REGISTERED, ON_ABORT_OUTSIDE_HANDLER, usageError } from "./errors";
+import { ON_ABORT_ALREADY_REGISTERED, ON_ABORT_OUTSIDE_HANDLER, usageError } from './errors'
 
 type AbortContext = {
-  callback: (() => void) | null;
-  canSetCallback: boolean;
-};
+  callback: (() => void) | null
+  canSetCallback: boolean
+}
 
-const abortContextStack: AbortContext[] = [];
+const abortContextStack: AbortContext[] = []
 
 export function allowCancelSetting() {
   abortContextStack.push({
     callback: null,
     canSetCallback: true,
-  });
+  })
 }
 
 export function disallowCancelSetting() {
-  abortContextStack.pop();
+  abortContextStack.pop()
 }
 
 /**
@@ -23,27 +23,27 @@ export function disallowCancelSetting() {
  * Must be called synchronously in the handler before the first `await`.
  */
 export function onAbort(callback: () => void) {
-  const currentContext = abortContextStack.at(-1);
+  const currentContext = abortContextStack.at(-1)
 
   if (!currentContext?.canSetCallback) {
-    throw usageError(ON_ABORT_OUTSIDE_HANDLER);
+    throw usageError(ON_ABORT_OUTSIDE_HANDLER)
   }
 
   if (currentContext.callback) {
-    throw usageError(ON_ABORT_ALREADY_REGISTERED);
+    throw usageError(ON_ABORT_ALREADY_REGISTERED)
   }
-  currentContext.callback = callback;
+  currentContext.callback = callback
 }
 
 export function occupyCurrentCancelCallback() {
-  const currentContext = abortContextStack.at(-1);
+  const currentContext = abortContextStack.at(-1)
   if (!currentContext) {
-    return null;
+    return null
   }
 
-  const toReturn = currentContext.callback;
-  currentContext.callback = null;
-  currentContext.canSetCallback = false;
+  const toReturn = currentContext.callback
+  currentContext.callback = null
+  currentContext.canSetCallback = false
 
-  return toReturn;
+  return toReturn
 }

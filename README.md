@@ -22,24 +22,24 @@ npm install @domosedov/effector-concurrent-effect effector
 ## Basic usage
 
 ```ts
-import { createConcurrentEffect, onAbort } from "@domosedov/effector-concurrent-effect";
+import { createConcurrentEffect, onAbort } from '@domosedov/effector-concurrent-effect'
 
 const requestFx = createConcurrentEffect({
-  strategy: "TAKE_LATEST",
+  strategy: 'TAKE_LATEST',
   handler: async (url: string) => {
-    const abortController = new AbortController();
+    const abortController = new AbortController()
 
     onAbort(() => {
-      abortController.abort();
-    });
+      abortController.abort()
+    })
 
     const response = await fetch(url, {
       signal: abortController.signal,
-    });
+    })
 
-    return response.text();
+    return response.text()
   },
-});
+})
 ```
 
 ## Strategies
@@ -51,17 +51,17 @@ const requestFx = createConcurrentEffect({
 ## `abortAll`
 
 ```ts
-import { createEvent } from "effector";
-import { createConcurrentEffect } from "@domosedov/effector-concurrent-effect";
+import { createEvent } from 'effector'
+import { createConcurrentEffect } from '@domosedov/effector-concurrent-effect'
 
-const abortAll = createEvent();
+const abortAll = createEvent()
 
 const requestFx = createConcurrentEffect({
   abortAll,
   handler: async () => {
     // ...
   },
-});
+})
 ```
 
 ## `onAbort`
