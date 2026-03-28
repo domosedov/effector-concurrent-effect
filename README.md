@@ -88,3 +88,12 @@ vp exec changeset
 vp run version
 vp run release
 ```
+
+If GitHub Actions is enabled, pushes to `main` use `.github/workflows/release.yml` to:
+
+- run `vp check`
+- run `vp test`
+- open a release PR when new changesets are present
+- publish to npm after the release PR is merged
+
+Set the `NPM_TOKEN` repository secret before enabling automatic publication.
