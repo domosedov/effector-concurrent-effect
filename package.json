@@ -1,6 +1,6 @@
 {
   "name": "@domosedov/effector-concurrent-effect",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Concurrency helpers for Effector effects with Farfetched-style cancellation.",
   "keywords": [
     "abort",

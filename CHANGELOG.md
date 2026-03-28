@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.1
+
+### Patch Changes
+
+- 30e3c27: Format code
+
 All notable changes to this project will be documented in this file.
 
 ## 0.3.0
