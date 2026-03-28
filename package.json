@@ -1,6 +1,6 @@
 {
   "name": "@domosedov/effector-concurrent-effect",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Concurrency helpers for Effector effects with Farfetched-style cancellation.",
   "keywords": [
     "abort",
@@ -9,8 +9,16 @@
     "effects",
     "farfetched"
   ],
+  "homepage": "https://github.com/domosedov/effector-concurrent-effect#readme",
+  "bugs": {
+    "url": "https://github.com/domosedov/effector-concurrent-effect/issues"
+  },
   "license": "MIT",
   "author": "Aleksandr Grigorii <domosedov.dev@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/domosedov/effector-concurrent-effect.git"
+  },
   "files": [
     "dist"
   ],
